@@ -1,6 +1,6 @@
 {
-  "name": "Calculadora de Gastroprofilaxis",
-  "short_name": "GPCalc",
+  "name": "Gastro Calc",
+  "short_name": "Gastro Calc",
   "description": "Herramienta de soporte para la indicación de gastroprofilaxis.",
   "start_url": ".",
   "display": "standalone",
