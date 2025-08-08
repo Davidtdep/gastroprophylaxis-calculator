@@ -2,20 +2,14 @@
   "name": "Gastro Calc",
   "short_name": "Gastro Calc",
   "description": "Herramienta de soporte para la indicación de gastroprofilaxis.",
-  "start_url": ".",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f9fafb",
   "theme_color": "#2563eb",
   "icons": [
-    {
-      "src": "icons/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
+    { "src": "icons/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "icons/icon-512.png", "type": "image/png", "sizes": "512x512" }
   ]
 }

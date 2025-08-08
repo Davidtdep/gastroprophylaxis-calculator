@@ -1,14 +1,14 @@
-const CACHE_NAME = 'gastro-calc-cache-v1';
+const CACHE_NAME = 'gastro-calc-cache-v2';
 // List of files to cache. Must include everything needed for the app to run offline.
 const FILES_TO_CACHE = [
-    '/',
-    'index.html',
-    'gastroprofilaxis.html',
-    'calculadora-atb.html',
-    'calculadora-sangrado.html',
-    'manifest.json',
-    'icons/icon-192.png',
-    'icons/icon-512.png'
+  './',
+  './index.html',
+  './gastroprofilaxis.html',
+  './calculadora-atb.html',
+  './calculadora-sangrado.html',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 // Install event: open a cache and add all essential files to it.
