@@ -3,6 +3,9 @@ const CACHE_NAME = 'gastro-calc-cache-v1';
 const FILES_TO_CACHE = [
     '/',
     'index.html',
+    'gastroprofilaxis.html',
+    'calculadora-atb.html',
+    'calculadora-sangrado.html',
     'manifest.json',
     'icons/icon-192.png',
     'icons/icon-512.png'

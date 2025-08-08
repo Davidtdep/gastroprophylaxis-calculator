@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Gastroprofilaxis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <link rel="manifest" href="manifest.json">
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-800">Guía de Indicación de Gastroprofilaxis</h1>
+            <p class="text-md text-gray-600 mt-2">Herramienta de soporte para la decisión clínica en pacientes hospitalizados y ambulatorios.</p>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- Risk Factors Form -->
+            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h2 class="text-2xl font-semibold mb-6 border-b pb-3 text-gray-700">Factores de Riesgo del Paciente</h2>
+                
+                <form id="risk-form">
+                    <!-- Major Risk Factors -->
+                    <fieldset class="mb-6">
+                        <legend class="text-lg font-semibold text-blue-700 mb-3">Factores de Riesgo Mayores</legend>
+                        <p class="text-sm text-gray-500 mb-4">(1 o más indica profilaxis)</p>
+                        <div id="major-factors-container" class="space-y-3">
+                            <!-- JS will populate this -->
+                        </div>
+                    </fieldset>
+
+                    <!-- Minor Risk Factors -->
+                    <fieldset>
+                        <legend class="text-lg font-semibold text-blue-700 mb-3">Factores de Riesgo Menores</legend>
+                        <p class="text-sm text-gray-500 mb-4">(2 o más indican profilaxis)</p>
+                        <div id="minor-factors-container" class="space-y-3">
+                            <!-- JS will populate this -->
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <!-- Results and Actions -->
+            <div class="sticky top-8 h-fit">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-3 text-gray-700">Recomendación</h2>
+                    
+                    <!-- Recommendation Box -->
+                    <div id="recommendation-box" class="p-4 rounded-lg text-center transition-all duration-300 mb-4">
+                        <p class="font-medium text-gray-500">Seleccione los factores de riesgo para ver una recomendación.</p>
+                    </div>
+
+                    <!-- Justification Area -->
+                    <div id="justification-area" class="text-sm text-gray-700 space-y-2">
+                        <!-- Justification will be populated here -->
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                        <button id="calculate-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                            Calcular Recomendación
+                        </button>
+                        <button id="reset-btn" class="w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
+                            Reiniciar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer/Disclaimer -->
+        <footer class="text-center mt-12 py-6 border-t border-gray-200">
+            <p class="text-xs text-gray-500 max-w-2xl mx-auto">
+                <strong>Descargo de responsabilidad:</strong> Esta herramienta es una guía educativa y no sustituye el juicio clínico profesional. Las decisiones terapéuticas deben ser individualizadas para cada paciente, considerando el contexto clínico completo.
+                <br>Basado en guías de práctica clínica para profilaxis de úlceras por estrés (ej. ASHP, Surviving Sepsis Campaign).
+            </p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // --- DATA: Risk Factors ---
+            const riskFactors = {
+                major: [
+                    { id: 'ventilacion', text: 'Ventilación mecánica > 48h' },
+                    { id: 'coagulopatia', text: 'Coagulopatía (Plaquetas < 50k, INR > 1.5, TPT > 2x normal)' },
+                    { id: 'historia_ulcera', text: 'Historia de úlcera o sangrado gastrointestinal en el último año' },
+                    { id: 'tec', text: 'TEC severo (Glasgow ≤ 10)' },
+                    { id: 'quemaduras', text: 'Quemaduras severas (>35% superficie corporal)' },
+                    { id: 'politrauma', text: 'Politrauma severo (ISS ≥ 16)' },
+                    { id: 'lesion_medular', text: 'Lesión medular aguda' }
+                ],
+                minor: [
+                    { id: 'sepsis', text: 'Sepsis' },
+                    { id: 'uci_semana', text: 'Estancia en UCI > 1 semana' },
+                    { id: 'sangrado_oculto', text: 'Sangrado gastrointestinal oculto ≥ 6 días' },
+                    { id: 'corticoides', text: 'Dosis altas de corticoides (>250mg hidrocortisona/día)' },
+                    { id: 'cirugia_mayor', text: 'Cirugía mayor' },
+                    { id: 'ira_erc', text: 'Insuficiencia Renal Aguda o Crónica' },
+                    { id: 'falla_hepatica', text: 'Falla hepática aguda' },
+                    { id: 'aines_antiagregantes', text: 'Uso de AINEs o antiagregantes' }
+                ]
+            };
+
+            // --- UI ELEMENTS ---
+            const majorFactorsContainer = document.getElementById('major-factors-container');
+            const minorFactorsContainer = document.getElementById('minor-factors-container');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const recommendationBox = document.getElementById('recommendation-box');
+            const justificationArea = document.getElementById('justification-area');
+
+            // --- FUNCTIONS ---
+
+            /**
+             * Creates a checkbox element for a risk factor.
+             * @param {object} factor - The factor to create a checkbox for.
+             * @returns {string} - The HTML string for the checkbox.
+             */
+            function createFactorCheckbox(factor) {
+                return `
+                    <label for="${factor.id}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200">
+                        <input type="checkbox" id="${factor.id}" name="risk-factor" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm text-gray-700">${factor.text}</span>
+                    </label>
+                `;
+            }
+
+            /**
+             * Populates the form with risk factor checkboxes.
+             */
+            function populateForm() {
+                majorFactorsContainer.innerHTML = riskFactors.major.map(createFactorCheckbox).join('');
+                minorFactorsContainer.innerHTML = riskFactors.minor.map(createFactorCheckbox).join('');
+            }
+
+            /**
+             * Calculates the recommendation based on selected factors.
+             */
+            function calculateRecommendation() {
+                const selectedMajorIds = riskFactors.major
+                    .filter(factor => document.getElementById(factor.id).checked)
+                    .map(factor => factor.text);
+
+                const selectedMinorIds = riskFactors.minor
+                    .filter(factor => document.getElementById(factor.id).checked)
+                    .map(factor => factor.text);
+
+                const majorCount = selectedMajorIds.length;
+                const minorCount = selectedMinorIds.length;
+                
+                let recommendation = '';
+                let justification = '';
+                let boxClass = '';
+
+                // Clear previous results
+                recommendationBox.innerHTML = '';
+                justificationArea.innerHTML = '';
+                recommendationBox.className = 'p-4 rounded-lg text-center transition-all duration-300 mb-4 fade-in';
+
+
+                if (majorCount >= 1) {
+                    recommendation = 'GASTROPROFILAXIS INDICADA';
+                    boxClass = 'bg-red-100 text-red-800';
+                    justification = `<h3 class="font-semibold mb-2">Justificación:</h3><p>Presencia de <strong>${majorCount} factor(es) de riesgo mayor(es)</strong>:</p>`;
+                    justification += `<ul class="list-disc list-inside">${selectedMajorIds.map(text => `<li>${text}</li>`).join('')}</ul>`;
+                } else if (minorCount >= 2) {
+                    recommendation = 'GASTROPROFILAXIS INDICADA';
+                    boxClass = 'bg-orange-100 text-orange-800';
+                    justification = `<h3 class="font-semibold mb-2">Justificación:</h3><p>Presencia de <strong>${minorCount} factores de riesgo menores</strong>:</p>`;
+                    justification += `<ul class="list-disc list-inside">${selectedMinorIds.map(text => `<li>${text}</li>`).join('')}</ul>`;
+                } else {
+                    recommendation = 'GASTROPROFILAXIS NO INDICADA';
+                    boxClass = 'bg-green-100 text-green-800';
+                    if (majorCount > 0 || minorCount > 0) {
+                        justification = `<p>El paciente no cumple criterios para iniciar profilaxis (se requiere ≥1 factor mayor o ≥2 factores menores).</p>`;
+                    } else {
+                         justification = `<p>No se seleccionaron factores de riesgo que indiquen la necesidad de profilaxis.</p>`;
+                    }
+                }
+                
+                // FIX: Use spread syntax to add multiple classes from the string
+                if (boxClass) {
+                    recommendationBox.classList.add(...boxClass.split(' '));
+                }
+                
+                recommendationBox.innerHTML = `<p class="text-lg font-bold">${recommendation}</p>`;
+                justificationArea.innerHTML = justification;
+            }
+            
+            /**
+             * Resets the form and results area.
+             */
+            function resetForm() {
+                document.getElementById('risk-form').reset();
+                recommendationBox.className = 'p-4 rounded-lg text-center transition-all duration-300 mb-4';
+                recommendationBox.innerHTML = '<p class="font-medium text-gray-500">Seleccione los factores de riesgo para ver una recomendación.</p>';
+                justificationArea.innerHTML = '';
+            }
+
+
+            // --- EVENT LISTENERS ---
+            calculateBtn.addEventListener('click', calculateRecommendation);
+            resetBtn.addEventListener('click', resetForm);
+
+            // --- INITIALIZATION ---
+            populateForm();
+
+        });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/gastroprophylaxis-calculator/sw.js') // IMPORTANT: Update with your repo name
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+
+    <footer class="text-center mt-12 py-6 border-t border-gray-200 text-xs text-gray-500">
+    Creado por Jean C. Pinto-Angarita y David A. Hernandez-Paez
+    </footer>
+</body>
+</html>

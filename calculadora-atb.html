@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Profilaxis Antibiótica en Endoscopia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .result-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .recommendation-no {
+            background-color: #dcfce7; /* green-100 */
+            border-left-color: #22c55e; /* green-500 */
+        }
+        .recommendation-consider {
+            background-color: #fef9c3; /* yellow-100 */
+            border-left-color: #f59e0b; /* yellow-500 */
+        }
+        .recommendation-yes {
+            background-color: #fee2e2; /* red-100 */
+            border-left-color: #ef4444; /* red-500 */
+        }
+        .antibiotic-details {
+            background-color: #f3f4f6; /* gray-100 */
+            border-top: 2px solid #e5e7eb; /* gray-200 */
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8 no-print">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Guía de Profilaxis Antibiótica en Endoscopia</h1>
+            <p class="mt-2 text-lg text-gray-600">Determine la necesidad de profilaxis antibiótica según el paciente y el procedimiento.</p>
+        </header>
+
+        <main id="print-area" class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+            <div id="calculator-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+
+                <!-- Patient Factors Column -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2">1. Condición del Paciente</h2>
+                    <p class="text-sm text-gray-500 no-print">Seleccione si el paciente presenta alguna condición de alto riesgo de infección.</p>
+                    <div class="space-y-3" id="patient-conditions">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="cond-none" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 no-print">
+                            <label for="cond-none" class="ml-3 text-gray-700 font-medium">Ninguna condición de alto riesgo</label>
+                        </div>
+                        <hr>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="cond-cardiac" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 no-print">
+                            <label for="cond-cardiac" class="ml-3 text-gray-700">Condición cardíaca de alto riesgo</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="cond-cirrhosis" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 no-print">
+                            <label for="cond-cirrhosis" class="ml-3 text-gray-700">Cirrosis con ascitis</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="cond-dialysis" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 no-print">
+                            <label for="cond-dialysis" class="ml-3 text-gray-700">Paciente en diálisis peritoneal</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="cond-immuno" class="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 no-print">
+                            <label for="cond-immuno" class="ml-3 text-gray-700">Inmunosupresión severa (Neutropenia)</label>
+                        </div>
+                    </div>
+                    <ul id="patient-print" class="list-disc list-inside text-gray-900 text-lg font-medium hidden print:block"></ul>
+                </div>
+
+                <!-- Procedure Factors Column -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2">2. Procedimiento Endoscópico</h2>
+                    <p class="text-sm text-gray-500 no-print">Seleccione el procedimiento a realizar.</p>
+                    
+                    <select id="procedure" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 no-print">
+                        <option value="low_risk" selected>Endoscopia digestiva alta o baja, diagnóstica</option>
+                        <option value="low_risk">Polipectomía</option>
+                        <option value="high_risk_general">Colocación de Gastrostomía Endoscópica (PEG)</option>
+                        <option value="high_risk_general">Dilatación esofágica</option>
+                        <option value="high_risk_general">Resección Mucosa (RME) / Disección Submucosa (DSE)</option>
+                        <option value="cpre">CPRE (Colangiopancreatografía Retrógrada Endoscópica)</option>
+                        <option value="eus_fna">USE con Punción-Aspiración (PAAF) de lesión quística</option>
+                        <option value="eus_fna_solid">USE con Punción-Aspiración (PAAF) de lesión sólida</option>
+                    </select>
+                    <p id="procedure-print" class="text-gray-900 text-lg font-medium hidden print:block"></p>
+                </div>
+            </div>
+
+            <div class="mt-10 text-center space-x-4 no-print">
+                <button id="calculate-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-transform transform hover:scale-105">
+                    Calcular Recomendación
+                </button>
+                 <button id="print-btn" class="bg-gray-600 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-transform transform hover:scale-105 hidden">
+                    Imprimir / Guardar PDF
+                </button>
+            </div>
+
+            <div id="result-section" class="mt-10 hidden">
+                <hr class="my-6 no-print"/>
+                <div id="result-card" class="result-card border-l-4 p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-bold" id="result-title"></h3>
+                    <p class="mt-4 text-gray-700" id="result-interpretation"></p>
+                    <div id="antibiotic-section" class="mt-4 hidden">
+                        <div class="antibiotic-details p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-gray-800">Antibiótico Recomendado:</h4>
+                            <p id="antibiotic-recommendation" class="mt-2 text-gray-700"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-12 text-center no-print">
+                <p class="text-xs text-gray-500">
+                    <strong>Aviso:</strong> Esta es una herramienta de apoyo basada en guías clínicas generales y no reemplaza el juicio clínico. Las decisiones deben individualizarse para cada paciente.
+                </p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const calculateBtn = document.getElementById('calculate-btn');
+            const printBtn = document.getElementById('print-btn');
+            const resultSection = document.getElementById('result-section');
+            const resultCard = document.getElementById('result-card');
+            const resultTitle = document.getElementById('result-title');
+            const resultInterpretation = document.getElementById('result-interpretation');
+            const antibioticSection = document.getElementById('antibiotic-section');
+            const antibioticRecommendation = document.getElementById('antibiotic-recommendation');
+            const noneCheckbox = document.getElementById('cond-none');
+            const otherCheckboxes = document.querySelectorAll('#patient-conditions input[type="checkbox"]:not(#cond-none)');
+            
+            const patientPrint = document.getElementById('patient-print');
+            const procedurePrint = document.getElementById('procedure-print');
+
+            noneCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    otherCheckboxes.forEach(cb => {
+                        cb.checked = false;
+                        cb.disabled = true;
+                    });
+                } else {
+                    otherCheckboxes.forEach(cb => {
+                        cb.disabled = false;
+                    });
+                }
+            });
+
+            calculateBtn.addEventListener('click', function () {
+                const isCirrhosis = document.getElementById('cond-cirrhosis').checked;
+                const isDialysis = document.getElementById('cond-dialysis').checked;
+                const isImmuno = document.getElementById('cond-immuno').checked;
+                const isCardiac = document.getElementById('cond-cardiac').checked;
+                const procedureType = document.getElementById('procedure').value;
+
+                let recommendation = 'no'; // 'no', 'yes', 'consider'
+                let interpretation = '';
+                let antibiotics = '';
+
+                // --- LOGIC BASED ON GUIDELINES ---
+
+                // 1. Absolute indications for prophylaxis
+                if (isCirrhosis || isDialysis || isImmuno) {
+                    recommendation = 'yes';
+                    interpretation = 'Se recomienda profilaxis antibiótica debido a la condición de alto riesgo del paciente (Cirrosis con ascitis, Diálisis Peritoneal o Inmunosupresión Severa), independientemente del procedimiento endoscópico.';
+                    antibiotics = '<b>Régimen sugerido:</b> Ceftriaxona 1g IV o una fluoroquinolona (ej. Ciprofloxacino 500mg IV/oral) 60 minutos antes del procedimiento.';
+                } else if (procedureType === 'high_risk_general' && document.getElementById('procedure').options[document.getElementById('procedure').selectedIndex].text.includes('PEG')) {
+                    recommendation = 'yes';
+                    interpretation = 'Se recomienda profilaxis antibiótica para la colocación de Gastrostomía Endoscópica Percutánea (PEG) para prevenir la infección del sitio de inserción.';
+                    antibiotics = '<b>Régimen sugerido:</b> Cefazolina 2g IV (o Cefuroxima 1.5g IV) 30-60 minutos antes del procedimiento. <br><b>Alergia a Penicilina:</b> Clindamicina 900mg IV.';
+                } else if (procedureType === 'cpre') {
+                     recommendation = 'yes';
+                     interpretation = 'Se recomienda profilaxis antibiótica en todos los pacientes sometidos a CPRE, especialmente si se anticipa un drenaje biliar incompleto.';
+                     antibiotics = '<b>Régimen sugerido:</b> Cefazolina 2g IV, Ampicilina/Sulbactam 3g IV o Ciprofloxacino 500mg IV. Administrar 30-60 minutos antes. <br><b>Alergia a Penicilina:</b> Clindamicina 900mg IV + Gentamicina.';
+                } else if (procedureType === 'eus_fna') {
+                    recommendation = 'yes';
+                    interpretation = 'Se recomienda profilaxis antibiótica para la punción de lesiones quísticas pancreáticas o mediastínicas para prevenir la infección del quiste.';
+                    antibiotics = '<b>Régimen sugerido:</b> Ciprofloxacino 500mg oral 60-120 mins antes y continuar por 3 días, o Ceftriaxona 1g IV. <br><b>Alergia:</b> Consultar con infectología.';
+                }
+                // 2. Relative indications / Consider
+                else if (isCardiac && (procedureType.startsWith('high_risk') || procedureType === 'cpre' || procedureType === 'eus_fna')) {
+                    recommendation = 'consider';
+                    interpretation = 'En pacientes con condiciones cardíacas de alto riesgo, la profilaxis para endocarditis NO se recomienda de rutina, pero debe considerarse para procedimientos de alto riesgo que involucren tejido infectado. La decisión debe ser individualizada y, preferiblemente, consultada con cardiología.';
+                    antibiotics = 'Si se decide proceder: Amoxicilina 2g oral 60 mins antes. <br><b>Alergia a Penicilina:</b> Clindamicina 600mg oral o Azitromicina 500mg oral.';
+                }
+                // 3. No indication
+                else {
+                    recommendation = 'no';
+                    interpretation = 'Según las guías actuales, la profilaxis antibiótica no está recomendada para este escenario clínico, ya que el riesgo de infección no supera los riesgos asociados al uso de antibióticos (resistencia, efectos adversos).';
+                    antibiotics = '';
+                }
+
+                // --- DISPLAY RESULTS ---
+                
+                // Prepare print version
+                patientPrint.innerHTML = '';
+                const checkedConditions = document.querySelectorAll('#patient-conditions input:checked');
+                checkedConditions.forEach(cb => {
+                    const li = document.createElement('li');
+                    li.textContent = document.querySelector(`label[for="${cb.id}"]`).textContent;
+                    patientPrint.appendChild(li);
+                });
+                procedurePrint.textContent = 'Procedimiento: ' + document.getElementById('procedure').options[document.getElementById('procedure').selectedIndex].text;
+
+
+                resultCard.className = 'result-card border-l-4 p-6 rounded-lg shadow-md'; // Reset classes
+                antibioticSection.classList.add('hidden');
+                
+                switch (recommendation) {
+                    case 'yes':
+                        resultTitle.textContent = 'Profilaxis RECOMENDADA';
+                        resultCard.classList.add('recommendation-yes');
+                        antibioticSection.classList.remove('hidden');
+                        antibioticRecommendation.innerHTML = antibiotics;
+                        break;
+                    case 'consider':
+                        resultTitle.textContent = 'CONSIDERAR Profilaxis';
+                        resultCard.classList.add('recommendation-consider');
+                        if (antibiotics) {
+                             antibioticSection.classList.remove('hidden');
+                             antibioticRecommendation.innerHTML = antibiotics;
+                        }
+                        break;
+                    case 'no':
+                        resultTitle.textContent = 'Profilaxis NO Recomendada';
+                        resultCard.classList.add('recommendation-no');
+                        break;
+                }
+
+                resultInterpretation.textContent = interpretation;
+                resultSection.classList.remove('hidden');
+                printBtn.classList.remove('hidden');
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+
+            printBtn.addEventListener('click', function() {
+                window.print();
+            });
+        });
+    </script>
+    <footer class="text-center mt-12 py-6 border-t border-gray-200 text-xs text-gray-500">
+    Creado por Jean C. Pinto-Angarita y David A. Hernandez-Paez
+    </footer>
+</body>
+</html>
